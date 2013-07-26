@@ -104,17 +104,23 @@ define([
           videoBackground = dom.byId("video_background");
 
           domConstruct.empty("video_background");
-          domConstruct.place('<source src="../backgrounds/' + mp4File + '" type="video/mp4">', "video_background", "last");
-          domConstruct.place('<source src="../backgrounds/' + webmFile + '" type="video/webm">', "video_background", "last");
 
-          infoText = win.doc.createTextNode("video not supported");
-          videoBackground.appendChild(infoText);
-          videoBackground.load();
+          if (mp4File)
+            domConstruct.place('<source src="../backgrounds/' + mp4File + '" type="video/mp4">', "video_background", "last");
+          
+          if (webmFile)
+            domConstruct.place('<source src="../backgrounds/' + webmFile + '" type="video/webm">', "video_background", "last");
 
-          fx.fadeIn({
-            node: "video_background",
-            duration: 500
-          }).play();
+          if (mp4File || webmFile) {
+            infoText = win.doc.createTextNode("video not supported");
+            videoBackground.appendChild(infoText);
+            videoBackground.load();
+
+            fx.fadeIn({
+              node: "video_background",
+              duration: 500
+            }).play();
+          }
         }
       }).play();
     },
@@ -163,6 +169,19 @@ define([
       }).play();
 
       elmToggler.show();
+    },
+
+    clearText: function() {
+      this.setForegroundText([]);
+    },
+
+    clearBackground: function() {
+      this.setBackgroundVideo("", "");
+    },
+
+    clearAll: function() {
+      this.clearText();
+      this.clearBackground();
     },
 
     startup: function() {

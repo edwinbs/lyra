@@ -119,6 +119,10 @@ define([
             screenWidgets.push(screenWindow.get_screen_widget());
           });
         });
+
+        on(dom.byId("clear-text"), "click", function(event) { onClearTextClick(); });
+        on(dom.byId("clear-background"), "click", function(event) { onClearBackgroundClick(); });
+        on(dom.byId("clear-all"), "click", function(event) { onClearAllClick(); });
       });
     };
 
@@ -228,6 +232,24 @@ define([
         });
         langToggle.placeAt(layoutControlsNode);
         selectedLangs.push(lang);
+      });
+    };
+
+    onClearBackgroundClick = function(event) {
+      arrayUtil.forEach(screenWidgets, function(sw) {
+        sw.clearBackground();
+      });
+    };
+
+    onClearTextClick = function(event) {
+      arrayUtil.forEach(screenWidgets, function(sw) {
+        sw.clearText();
+      });
+    };
+
+    onClearAllClick = function(event) {
+      arrayUtil.forEach(screenWidgets, function(sw) {
+        sw.clearAll();
       });
     };
 

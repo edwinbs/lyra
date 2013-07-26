@@ -3,10 +3,58 @@
 	{
 		"selected_items":
 		[
+			[
+				"onCle",
+				"onClearAllClick"
+			],
+			[
+				"onClea",
+				"onClearBackgroundClick"
+			],
+			[
+				"onClear",
+				"onClearTextClick"
+			],
+			[
+				"screen",
+				"screenWidgets"
+			],
+			[
+				"array",
+				"arrayUtil"
+			],
+			[
+				"clear",
+				"clearForeground"
+			]
 		]
 	},
 	"buffers":
 	[
+		{
+			"file": "lyra/widget/Screen.js",
+			"settings":
+			{
+				"buffer_size": 4667,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "lyra/Presenter.js",
+			"settings":
+			{
+				"buffer_size": 7867,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "index.html",
+			"settings":
+			{
+				"buffer_size": 2908,
+				"line_ending": "Windows"
+			}
+		}
 	],
 	"build_system": "",
 	"command_palette":
@@ -32,6 +80,8 @@
 	},
 	"file_history":
 	[
+		"/C/inetpub/wwwroot/lyra/README.md",
+		"/C/inetpub/wwwroot/lyra/.gitignore"
 	],
 	"find":
 	{
@@ -68,8 +118,93 @@
 	"groups":
 	[
 		{
+			"selected": 0,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "lyra/widget/Screen.js",
+					"settings":
+					{
+						"buffer_size": 4667,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4219,
+								4219
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 495.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "lyra/Presenter.js",
+					"settings":
+					{
+						"buffer_size": 7867,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4393,
+								4393
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3166.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "index.html",
+					"settings":
+					{
+						"buffer_size": 2908,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1665,
+								1665
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 180.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
 			]
 		}
 	],
