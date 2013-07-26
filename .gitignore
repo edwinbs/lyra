@@ -9,5 +9,10 @@ dojo
 put-selector
 xstyle
 
-# CPM file
+# CPM files
 package.json
+dgrid.js
+dijit.js
+dojo.js
+put-selector.js
+xstyle.js
