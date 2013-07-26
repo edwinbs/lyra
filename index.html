@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <title>Lyra - Web Based Presenter</title>
+    <link rel="stylesheet" href="presenter.css" media="screen">
+    <link rel="stylesheet" href="dijit/themes/claro/claro.css">
+  </head>
+  
+  <body class="claro">
+    <div id="page"
+         data-dojo-type="dijit/layout/BorderContainer"
+         data-dojo-props="design: 'headline'">
+
+      <div id="page-header"
+           data-dojo-type="dijit/layout/ContentPane"
+           data-dojo-props="region: 'top'">
+        <h1>LYRA</h1>
+      </div>
+
+      <div id="page-left" class="side-pane"
+           data-dojo-type="dijit/Layout/BorderContainer"
+           data-dojo-props="region: 'leading', splitter: true">
+
+        <div id="live-preview"
+             data-dojo-type="dijit/layout/ContentPane"
+             data-dojo-props="region: 'top', splitter: true">
+          <iframe id="preview" src="screen/"></iframe>
+        </div>
+
+        <div id="library"
+             data-dojo-type="dijit/layout/ContentPane"
+             data-dojo-props="region: 'center'">
+          <div id="library-header" class="collection-header">
+            <h4>Library</h4>
+          </div>
+          <div id="library-items"> </div>
+        </div>
+      </div>
+
+      <div id="page-center"
+           data-dojo-type="dijit/Layout/BorderContainer"
+           data-dojo-props="region: 'center'">
+
+        <div id="controls"
+             data-dojo-type="dijit/layout/ContentPane"
+             data-dojo-props="region: 'top'">
+          <div id="screen-controls"
+               data-dojo-type="dijit/layout/ContentPane">
+            <button id="create-screen">Create screen</button>
+            <button id="clear-text">Clear text</button>
+            <button id="clear-background">Clear background</button>
+            <button id="clear-all">Clear all</button>
+          </div>
+          <div id="layout-controls"
+               data-dojo-type="dijit/layout/ContentPane">
+          </div>
+        </div>
+
+        <div id="slide-controls"
+             data-dojo-type="dijit/layout/ContentPane"
+             data-dojo-props="region: 'center'">
+          <div id="slides"> </div>
+        </div>
+      </div>
+
+      <div id="page-right" class="side-pane"
+           data-dojo-type="dijit/Layout/ContentPane"
+           data-dojo-props="region: 'trailing', splitter: true">
+
+        <div id="backgrounds">
+          <div id="backgrounds-header" class="collection-header">
+            <h4>Backgrounds</h4>
+          </div>
+          <div id="backgrounds-items"> </div>
+        </div>
+      </div>
+
+    </div>
+
+    <script src="dojo/dojo.js" data-dojo-config="async: true"></script>
+
+    <script>
+      require(["dojo/parser", "dijit/layout/BorderContainer", "dijit/layout/ContentPane"]);
+      require(["lyra/Presenter", "dojo/domReady!"], function(presenter) {
+        presenter.init();
+      });
+    </script>
+
+  </body>
+
+</html>

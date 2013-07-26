@@ -1,0 +1,13 @@
+# Mock resource folders
+backgrounds
+songs
+
+# Dojo library folders
+dgrid
+dijit
+dojo
+put-selector
+xstyle
+
+# CPM file
+package.json

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Stage Window - Lyra</title>
+    <link rel="stylesheet" type="text/css" href="screen.css" />
+</head>
+
+<body>
+    <div id="screen"
+         data-dojo-type="lyra/widget/Screen">
+    </div>
+
+    <script src="../dojo/dojo.js"></script>
+    <script>
+
+      /* This global namespace function is needed to allow the parent window
+         to get the reference to the screen widget for control. */
+
+      var g_screen_widget = null; // This is set when parsing is complete
+
+      function get_screen_widget() {
+          return g_screen_widget;
+      };
+
+      /* And the rest is Dojo. */
+
+      require(["lyra/ScreenContainer", "dojo/domReady!"], function(container) {
+        container.init();
+      });
+    </script>
+
+</body>
+
+</html>

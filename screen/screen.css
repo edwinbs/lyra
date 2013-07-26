@@ -1,0 +1,71 @@
+* {
+    margin: 0;
+    padding: 0;
+    cursor: default;
+}
+
+html {
+    overflow: hidden;
+}
+
+body {
+    font-size: 100%;
+    overflow: hidden;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: moz-none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#instructions {
+    text-align: center;
+    margin: 0 auto;
+    font-size: 1.2em;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+#container {
+    width: 100%;
+    overflow: hidden;
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: table;
+}
+
+#video_background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    z-index: -998;
+}
+
+#solid_background {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -1000;
+    overflow: hidden;
+    background: black;
+}
+
+.lyrics {
+    font-size: 3em;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    color: white;
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    text-shadow: 0.05em 0.05em 0.2em rgba(0, 0, 0, 1);
+    margin: 0;
+}
+
