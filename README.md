@@ -22,8 +22,8 @@ A worship presenter is generally expected to differ from PowerPoint in some of t
 
 It was previously impossible to build this as a web app (without Flash). HTML5 finally allows us to:
 
-- Go full screen for real
-- Play mp4, webm, ogg videos (varies across browsers)
+- Go [full screen](https://developer.mozilla.org/en-US/docs/Web/Guide/DOM/Using_full_screen_mode) for real
+- Play mp4, webm, ogg [videos](https://developer.mozilla.org/en-US/docs/Web/HTML/Using_HTML5_audio_and_video) (varies across browsers)
 - Access user media devices (camera)
 - Use local storage, necessary because media must be cached before the service for smooth usage
 
@@ -32,7 +32,7 @@ Lyra is hoped to become a self-sustaining non-profit software house.
 Dev Boot
 --------
 
-We are using Dojo for front end. There is no back end development yet, but it's expected to use either Node.js or PHP. Flash, Air, Java Applet and such are taboo.
+We are using [Dojo](http://dojotoolkit.org/) for front end. There is no back end development yet, but it's expected to use either [Node.js](http://nodejs.org/) or [PHP](http://php.net/). Flash, Air, Java Applet and such are taboo.
 
 Some prerequisites:
 
@@ -45,22 +45,22 @@ Some prerequisites:
 Then get the code:
 
 1. Clone this repository
-2. Install dojo, dijit, and dgrid using CPM in the top-level **lyra/** directory.
-3. Get test data and video files (TODO)
+2. Install dojo, dijit, and dgrid using CPM in the top-level `lyra/` directory.
+3. Get test data and video files from (TODO). **IMPORTANT:** the videos should be used for development only. We'll find more-flexibly licensed videos.
 4. Configure your HTTP server (see next section)
 
-The current code works on Safari (latest) and Firefox (tested on [ESR 17](http://www.mozilla.org/en-US/firefox/organizations/all.html)).
+The current code works on **Safari** on Mac (latest) and **Firefox** on Windows (tested on [ESR 17](http://www.mozilla.org/en-US/firefox/organizations/all.html)).
 
 Configuring HTTP Server
 -----------------------
 
 ### Apache
 
-Add index.json to `DirectoryIndex` inside `httpd.conf`.
+Add `index.json` to `DirectoryIndex` inside `httpd.conf`.
 
 ### IIS
 
-1. Open Internet Information Services (IIS) Manager in Administrative Services
+1. Open ***Internet Information Services (IIS) Manager** in **Administrative Services**
 2. In **Default Document** add `index.json` and place it *under* `index.html`
-3. In **MIME Types** add `.webm` as `video/webm` and `.json` as `application/json`
+3. In **MIME Types** add `webm` as `video/webm` and `json` as `application/json`
 4. Restart IIS
