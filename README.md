@@ -27,6 +27,8 @@ It was previously impossible to build this as a web app (without Flash). HTML5 f
 - Access user media devices (camera)
 - Use local storage, necessary because media must be cached before the service for smooth usage
 
+Lyra */ˈlīrə/* is the plural form of *lyre*, a string-based musical instrument most widely known to be [played by King David](http://www.biblegateway.com/passage/?search=1%20Samuel%2016:23&version=NIV). And it shares 3 letters with "lyrics". The singular form is pronounced the same way as "liar", which is not nice.
+
 Lyra is hoped to become a self-sustaining non-profit software house.
 
 Dev Boot
@@ -46,7 +48,7 @@ Then get the code:
 
 1. Clone this repository
 2. Install dojo, dijit, and dgrid using CPM in the top-level `lyra/` directory.
-3. Get test data and video files from (TODO). **IMPORTANT:** the videos should be used for development only. We'll find more-flexibly licensed videos.
+3. Get test data and video files from [https://impresscourse.com/lyra/lyra-samples.zip](https://impresscourse.com/lyra/lyra-samples.zip). User: `hope22` Pass: `*,&1,b~6Dpm}` **IMPORTANT:** the videos should be used for development only. We'll find more-flexibly licensed videos.
 4. Configure your HTTP server (see next section)
 
 The current code works on **Safari** on Mac (latest) and **Firefox** on Windows (tested on [ESR 17](http://www.mozilla.org/en-US/firefox/organizations/all.html)).
@@ -62,5 +64,5 @@ Add `index.json` to `DirectoryIndex` inside `httpd.conf`.
 
 1. Open ***Internet Information Services (IIS) Manager** in **Administrative Services**
 2. In **Default Document** add `index.json` and place it *under* `index.html`
-3. In **MIME Types** add `webm` as `video/webm` and `json` as `application/json`
+3. In **MIME Types** add `mp4` as `video/mp4`, `webm` as `video/webm` and `json` as `application/json`
 4. Restart IIS
