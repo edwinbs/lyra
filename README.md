@@ -62,7 +62,7 @@ Add `index.json` to `DirectoryIndex` inside `httpd.conf`.
 
 ### IIS
 
-1. Open ***Internet Information Services (IIS) Manager** in **Administrative Services**
+1. Open **Internet Information Services (IIS) Manager** in **Administrative Services**
 2. In **Default Document** add `index.json` and place it *under* `index.html`
 3. In **MIME Types** add `mp4` as `video/mp4`, `webm` as `video/webm` and `json` as `application/json`
 4. Restart IIS

@@ -94,24 +94,44 @@ define([
       }
     },
 
-    setBackgroundVideo: function(mp4File, webmFile) {
-      console.log("set background video, mp4: " + mp4File + " webm: " + webmFile);
+    setRatio: function(hor, ver) {
+      domStyle.set("container", "height", (domStyle.get("container", "width") * ver / hor) + "px");
+    },
 
-      fx.fadeOut({
-        node: "video_background",
-        duration: 500,
-        onEnd: function() {
-          videoBackground = dom.byId("video_background");
+    setDisplayData: function(displayData) {
+      displayData.watch(this.updateDisplay);
 
-          domConstruct.empty("video_background");
+      //Doesn't seem right
+      this.updateDisplay("background", null, displayData.background);
+      this.updateDisplay("contents", null, displayData.contents);
+    },
 
-          if (mp4File)
-            domConstruct.place('<source src="../backgrounds/' + mp4File + '" type="video/mp4">', "video_background", "last");
-          
-          if (webmFile)
-            domConstruct.place('<source src="../backgrounds/' + webmFile + '" type="video/webm">', "video_background", "last");
+    updateDisplay: function(name, oldValue, newValue) {
+      console.log("[screen] Display updated name=" + name + " old=" + oldValue + " new=" + newValue);
+      
+      if (name == "background") {
+        setBackgroundVideo(newValue);
+      } else if (name == "contents") {
+        crossFadeText(newValue);
+      }
 
-          if (mp4File || webmFile) {
+      function setBackgroundVideo(backgroundData) {
+        fx.fadeOut({
+          node: "video_background",
+          duration: 500,
+          onEnd: function() {
+            videoBackground = dom.byId("video_background");
+
+            domConstruct.empty("video_background");
+
+            if (!backgroundData) return;
+
+            arrayUtil.forEach(backgroundData.videoSources, function(vs) {
+              domConstruct.place('<source src="../backgrounds/' + vs.src + '" type="' + vs.mimeType + '">', "video_background", "last");
+            });
+
+            if (backgroundData.videoSources.length == 0) return;
+
             infoText = win.doc.createTextNode("video not supported");
             videoBackground.appendChild(infoText);
             videoBackground.load();
@@ -121,67 +141,47 @@ define([
               duration: 500
             }).play();
           }
+        }).play();
+      };
+
+      function crossFadeText(lines) {
+        var element = dom.byId("placeholder");
+        var elementSpan = query("#placeholder span")[0];
+
+        var elmPos = domGeometry.position(elementSpan, true);
+        var elmClone = lang.clone(element);
+        var elmToggler = new Toggler({
+          node: element,
+          hideDuration: 0,
+          showDuration: 500
+        });
+
+        domStyle.set(elmClone, 'position', 'absolute');
+        domStyle.set(elmClone, 'left', elmPos.x + 'px');
+        domStyle.set(elmClone, 'top', elmPos.y + 'px');
+        domStyle.set(elmClone, 'width', '100%');
+        domConstruct.place(elmClone, dom.byId("container"), "last");
+
+        elmToggler.hide();
+
+        domConstruct.empty(elementSpan);
+
+        if (lines) {
+          arrayUtil.forEach(lines, function(line) {
+            domConstruct.place('<p>' + line + '</p>', elementSpan, "last");
+          });
         }
-      }).play();
-    },
 
-    setRatio: function(hor, ver) {
-      domStyle.set("container", "height", (domStyle.get("container", "width") * ver / hor) + "px");
-    },
+        fx.fadeOut({
+          node: elmClone,
+          duration: 500,
+          onEnd: function() {
+            domConstruct.destroy(elmClone);
+          }
+        }).play();
 
-    setForegroundText: function(lines) {
-      console.log("setForegroundText");
-      this.crossFadeText(lines);
-    },
-
-    crossFadeText: function(lines) {
-      var element = dom.byId("placeholder");
-      var elementSpan = query("#placeholder span")[0];
-
-      var elmPos = domGeometry.position(elementSpan, true);
-      var elmClone = lang.clone(element);
-      var elmToggler = new Toggler({
-        node: element,
-        hideDuration: 0,
-        showDuration: 500
-      });
-
-      domStyle.set(elmClone, 'position', 'absolute');
-      domStyle.set(elmClone, 'left', elmPos.x + 'px');
-      domStyle.set(elmClone, 'top', elmPos.y + 'px');
-      domStyle.set(elmClone, 'width', '100%');
-      domConstruct.place(elmClone, win.body(), "last");
-
-      elmToggler.hide();
-
-      domConstruct.empty(elementSpan);
-
-      arrayUtil.forEach(lines, function(line) {
-        domConstruct.place('<p>' + line + '</p>', elementSpan, "last");
-      });
-
-      fx.fadeOut({
-        node: elmClone,
-        duration: 500,
-        onEnd: function() {
-          domConstruct.destroy(elmClone);
-        }
-      }).play();
-
-      elmToggler.show();
-    },
-
-    clearText: function() {
-      this.setForegroundText([]);
-    },
-
-    clearBackground: function() {
-      this.setBackgroundVideo("", "");
-    },
-
-    clearAll: function() {
-      this.clearText();
-      this.clearBackground();
+        elmToggler.show();
+      };
     },
 
     startup: function() {

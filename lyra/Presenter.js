@@ -1,262 +1,301 @@
 define([
-    "dojo/_base/declare",
-    "dojo/parser",
-    "dojo/on",
-    "dojo/store/JsonRest",
-    "dojo/store/Memory",
-    "dojo/store/Cache",
-    "dijit/registry",
-    "dojo/request",
-    "dojo/_base/array",
-    "dojo/dom",
-    "dgrid/OnDemandList",
-    "dgrid/Selection",
-    "put-selector/put",
-    "dojo/dom-construct",
-    "dijit/form/ToggleButton",
-    "dojo/_base/lang"
-], function(declare, parser, on, JsonRest, Memory, Cache, registry, request, arrayUtil, dom, OnDemandList, Selection, put, domConstruct, ToggleButton, lang) {
-    var songsStore = null,
-    libraryList = null,
-    slidesStore = null,
-    slidesList = null,
-    backgroundsStore = null,
-    backgroundList = null,
-    screenWidgets = [],
-    selectedLangs = [],
-    activeSong = null,
-    maxLinesPerSlide = 4;
+  "dojo/_base/declare",
+  "dojo/parser",
+  "dojo/on",
+  "dojo/store/JsonRest",
+  "dojo/store/Memory",
+  "dojo/store/Cache",
+  "dijit/registry",
+  "dojo/request",
+  "dojo/_base/array",
+  "dojo/dom",
+  "dgrid/OnDemandList",
+  "dgrid/Selection",
+  "put-selector/put",
+  "dojo/dom-construct",
+  "dijit/form/ToggleButton",
+  "dojo/_base/lang",
+  "lyra/DisplayData",
+  "lyra/BackgroundData",
+  "lyra/VideoSourceData",
+  "dojo/Stateful"
+], function(
+  declare,
+  parser,
+  on,
+  JsonRest,
+  Memory,
+  Cache,
+  registry,
+  request,
+  arrayUtil,
+  dom,
+  OnDemandList,
+  Selection,
+  put,
+  domConstruct,
+  ToggleButton,
+  lang,
+  DisplayData,
+  BackgroundData,
+  VideoSourceData,
+  Stateful)
+{
+  var songsStore = null,
+  libraryList = null,
+  slidesStore = null,
+  slidesList = null,
+  backgroundsStore = null,
+  backgroundList = null,
+  screenWidgets = [],
+  selectedLangs = [],
+  activeSong = null,
+  maxLinesPerSlide = 4,
+  displayData = null,
 
-    startup = function() {
-      songsStore = new Cache(new JsonRest({ target: "songs/" }), new Memory({ }));
-      backgroundsStore = new Cache(new JsonRest({ target: "backgrounds/" }), new Memory({ }));
-      slidesStore = new Memory({ });
+  startup = function() {
+    songsStore = new Cache(new JsonRest({ target: "songs/" }), new Memory({ }));
+    backgroundsStore = new Cache(new JsonRest({ target: "backgrounds/" }), new Memory({ }));
+    slidesStore = new Memory({ });
 
-      initUi();
-    },
+    this.displayData = new Stateful(new DisplayData());
 
-    initBackgroundList = function() {
-      backgroundList = new (declare([OnDemandList, Selection]))({
-        selectionMode: 'single',
-        renderRow: function(object, options) {
-            return put("div", object.title);
-        },
-        store: backgroundsStore
-      }, "backgrounds-items");
+    initUi();
+  },
 
-      on(backgroundList, "dgrid-select", function(event) {
-        console.log("background: " + event.rows[0].data.id);
-        onSetBackgroundVideo(event.rows[0].data);
-      });
-
-      backgroundList.startup();
-    },
-
-    initLibrary = function() {
-      libraryList = new (declare([OnDemandList, Selection]))({
-        selectionMode: 'single',
-        renderRow: function(object, options) {
+  initBackgroundList = function() {
+    backgroundList = new (declare([OnDemandList, Selection]))({
+      selectionMode: 'single',
+      renderRow: function(object, options) {
           return put("div", object.title);
-        },
-        store: songsStore
-      }, "library-items");
+      },
+      store: backgroundsStore
+    }, "backgrounds-items");
 
-      on(libraryList, "dgrid-select", function(event) {
-        loadSong(event.rows[0].data.id);
-      });
+    on(backgroundList, "dgrid-select", function(event) {
+      onSetBackgroundVideo(event.rows[0].data);
+    });
 
-      libraryList.startup();
-    },
+    backgroundList.startup();
+  },
 
-    initSlideControls = function() {
-      slidesList = new (declare([OnDemandList, Selection]))({
-        selectionMode: 'single',
-        renderRow: function(object, options) {
-          var div = put("div.slide");
-          if (object.type == "content") {
-            arrayUtil.forEach(object.content, function(line) {
-              div.innerHTML += '<p class="slide-line">' + line + '</p>';
-            });
-          } else if (object.type == "separator") {
-            div.innerHTML = '<p class="slide-separator">' + object.content + '</p>';
-          }
-          return div;
-        },
-        allowSelect: function(row) { return row.data.type !== "separator"; },
-        store: slidesStore
-      }, "slides");
+  initLibrary = function() {
+    libraryList = new (declare([OnDemandList, Selection]))({
+      selectionMode: 'single',
+      renderRow: function(object, options) {
+        return put("div", object.title);
+      },
+      store: songsStore
+    }, "library-items");
 
-      on(slidesList, "dgrid-select", function(event) {
-        console.log(event.rows[0].data.content);
+    on(libraryList, "dgrid-select", function(event) {
+      loadSong(event.rows[0].data.id);
+    });
 
-        arrayUtil.forEach(screenWidgets, function(s) {
-          s.setForegroundText(event.rows[0].data.content);
-        });
-      });
+    libraryList.startup();
+  },
 
-      slidesList.startup();
-    },
-
-    initPreviewWindow = function() {
-      previewWindow = dom.byId("preview").contentWindow;
-      on(previewWindow, "parsed", function(event) {
-        previewWindowScreenWidget = previewWindow.get_screen_widget();
-        screenWidgets.push(previewWindowScreenWidget);
-        previewWindowScreenWidget.activate();
-      });
-    },
-
-    initUi = function() {
-      parser.parse().then(function() {
-        initPreviewWindow();
-        initLibrary();
-        initBackgroundList();
-        initSlideControls();
-
-        on(dom.byId("create-screen"), "click", function(event) {
-          screenWindow = window.open("screen/", "screen_window", "toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=400,height=300");
-          on (screenWindow, "parsed", function(event) {
-            screenWidgets.push(screenWindow.get_screen_widget());
+  initSlideControls = function() {
+    slidesList = new (declare([OnDemandList, Selection]))({
+      selectionMode: 'single',
+      renderRow: function(object, options) {
+        var div = put("div.slide");
+        if (object.type == "content") {
+          arrayUtil.forEach(object.content, function(line) {
+            div.innerHTML += '<p class="slide-line">' + line + '</p>';
           });
+        } else if (object.type == "separator") {
+          div.innerHTML = '<p class="slide-separator">' + object.content + '</p>';
+        }
+        return div;
+      },
+      allowSelect: function(row) { return row.data.type !== "separator"; },
+      store: slidesStore
+    }, "slides");
+
+    on(slidesList, "dgrid-select", function(event) {
+      onSlideSelectionChange(event.rows[0].data.content);
+    });
+
+    slidesList.startup();
+  },
+
+  initPreviewWindow = function() {
+    previewWindow = dom.byId("preview").contentWindow;
+    on(previewWindow, "parsed", function(event) { onScreenParsed(previewWindow, true); });
+  },
+
+  initUi = function() {
+    parser.parse().then(function() {
+      initPreviewWindow();
+      initLibrary();
+      initBackgroundList();
+      initSlideControls();
+
+      on(dom.byId("create-screen"), "click", function(event) { onCreateScreenClick(); });
+      on(dom.byId("clear-text"), "click", function(event) { onClearTextClick(); });
+      on(dom.byId("clear-background"), "click", function(event) { onClearBackgroundClick(); });
+      on(dom.byId("clear-all"), "click", function(event) { onClearAllClick(); });
+    });
+  };
+
+  onCreateScreenClick = function() {
+    screenWindow = window.open("screen/", "screen_window", "toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=400,height=300");
+    on(screenWindow, "parsed", function(event) { onScreenParsed(screenWindow, false); });
+  };
+
+  onScreenParsed = function(screenWindow, shouldActivate) {
+    var screenWidget = screenWindow.get_screen_widget();
+    screenWidget.setDisplayData(this.displayData);
+    screenWidgets.push(screenWidget);
+
+    if (shouldActivate) {
+      screenWidget.activate();
+    }
+  };
+
+  loadSong = function(songId) {
+    request.get("songs/" + songId + "/", {
+      handleAs: "json"
+    }).then(function(songData) {
+      this.activeSong = songData;
+      updateLayoutControls(this.activeSong.languages);
+      reconstructSlides(4);
+    });
+  };
+
+  reconstructSlides = function(maxLinesPerLang) {
+    slidesStore = new Memory({ });
+    constructSlides(maxLinesPerLang);
+    slidesList.setStore(slidesStore);
+  };
+
+  constructSlides = function(maxLinesPerLang) {
+    nextSlide = { };
+    count = 0;
+    nextSlideId = 1;
+
+    activeLangs = selectedLangs;
+    activeLangs.filter(function(lang) {
+      if (this.activeSong.languages.indexOf(lang) == -1)
+        return false;
+      return true;
+    });
+
+    arrayUtil.forEach(activeLangs, function(lang) {
+      nextSlide[lang] = [];
+    });
+
+    arrayUtil.forEach(this.activeSong.verses, function (verse) {
+      sepSlide = { };
+      sepSlide.id = nextSlideId++;
+      sepSlide.type = "separator";
+      sepSlide.content = verse.label;
+      slidesStore.add(sepSlide);
+
+      arrayUtil.forEach(verse.lyrics, function (lyric) {
+        arrayUtil.forEach(activeLangs, function (lang) {
+          nextSlide[lang].push(lyric[lang]);
+          ++count;
         });
 
-        on(dom.byId("clear-text"), "click", function(event) { onClearTextClick(); });
-        on(dom.byId("clear-background"), "click", function(event) { onClearBackgroundClick(); });
-        on(dom.byId("clear-all"), "click", function(event) { onClearAllClick(); });
-      });
-    };
-
-    loadSong = function(songId) {
-      console.log("Load song: " + songId);
-      request.get("songs/" + songId + "/", {
-        handleAs: "json"
-      }).then(function(songData) {
-        this.activeSong = songData;
-        updateLayoutControls(this.activeSong.languages);
-        reconstructSlides(4);
-      });
-    };
-
-    reconstructSlides = function(maxLinesPerLang) {
-      slidesStore = new Memory({ });
-      constructSlides(maxLinesPerLang);
-      slidesList.setStore(slidesStore);
-    };
-
-    constructSlides = function(maxLinesPerLang) {
-      nextSlide = { };
-      count = 0;
-      nextSlideId = 1;
-
-      activeLangs = selectedLangs;
-      activeLangs.filter(function(lang) {
-        if (this.activeSong.languages.indexOf(lang) == -1)
-          return false;
-        return true;
-      });
-
-      arrayUtil.forEach(activeLangs, function(lang) {
-        nextSlide[lang] = [];
-      });
-
-      arrayUtil.forEach(this.activeSong.verses, function (verse) {
-        sepSlide = { };
-        sepSlide.id = nextSlideId++;
-        sepSlide.type = "separator";
-        sepSlide.content = verse.label;
-        slidesStore.add(sepSlide);
-
-        arrayUtil.forEach(verse.lyrics, function (lyric) {
-          arrayUtil.forEach(activeLangs, function (lang) {
-            nextSlide[lang].push(lyric[lang]);
-            ++count;
-          });
-
-          if (count >= maxLinesPerSlide)
-            flushToSlide(activeLangs, nextSlide, nextSlideId++);
-        });
-
-        if (count > 0)
+        if (count >= maxLinesPerSlide)
           flushToSlide(activeLangs, nextSlide, nextSlideId++);
-      });      
-    };
-
-    flushToSlide = function(activeLangs, nextSlide, id) {
-      content = [];
-      arrayUtil.forEach(activeLangs, function(lang, i) {
-        arrayUtil.forEach(nextSlide[lang], function( line ) {
-          content.push(line);
-        });
-        nextSlide[lang] = [];
       });
-      count = 0;
 
-      newSlide = { };
-      newSlide.id = id;
-      newSlide.type = "content";
-      newSlide.content = content;
-      slidesStore.add(newSlide);
+      if (count > 0)
+        flushToSlide(activeLangs, nextSlide, nextSlideId++);
+    });      
+  };
 
-      console.log(content);
-    };
-
-    onSetBackgroundVideo = function(videoInfo) {
-      arrayUtil.forEach(screenWidgets, function(s) {
-        s.setBackgroundVideo(videoInfo.mp4Filename, videoInfo.webmFilename);
+  flushToSlide = function(activeLangs, nextSlide, id) {
+    content = [];
+    arrayUtil.forEach(activeLangs, function(lang, i) {
+      arrayUtil.forEach(nextSlide[lang], function( line ) {
+        content.push(line);
       });
-    };
+      nextSlide[lang] = [];
+    });
+    count = 0;
 
-    onActiveLangChange = function(lang, val) {
-      console.log("active lang change: " + lang + " active: " + val);
-      if (val) {
-        selectedLangs.push(lang);
-      } else {
-        selectedLangs = arrayUtil.filter(selectedLangs, function(item) { return item != lang; });
-      }
-      reconstructSlides();
-    };
+    newSlide = { };
+    newSlide.id = id;
+    newSlide.type = "content";
+    newSlide.content = content;
+    slidesStore.add(newSlide);
 
-    updateLayoutControls = function(languages) {
-      layoutControlsNode = dom.byId("layout-controls");
-      domConstruct.empty(layoutControlsNode);
-      selectedLangs = [];
+    console.log(content);
+  };
 
-      _onActiveLangChange = lang.hitch(this, this.onActiveLangChange);
+  onSetBackgroundVideo = function(videoInfo) {
+    mp4VideoSource = new VideoSourceData({
+      mimeType: "video/mp4",
+      src: videoInfo.mp4Filename
+    });
 
-      arrayUtil.forEach(languages, function(lang) {
-        langToggle = new ToggleButton({
-          checked: true,
-          iconClass: "dijitCheckBoxIcon",
-          label: lang,
-          onChange: function(val) { _onActiveLangChange(this.label, val); }
-        });
-        langToggle.placeAt(layoutControlsNode);
-        selectedLangs.push(lang);
+    webmVideoSource = new VideoSourceData({
+      mimeType: "video/webm",
+      src: videoInfo.webmFilename
+    });
+
+    backgroundData = new BackgroundData({
+      type: "video",
+      videoSources: [mp4VideoSource, webmVideoSource]
+    });
+
+    this.displayData.set("background", backgroundData);
+  };
+
+  onSlideSelectionChange = function(slideContents) {
+    this.displayData.set("contents", slideContents);
+  };
+
+  onActiveLangChange = function(lang, val) {
+    console.log("active lang change: " + lang + " active: " + val);
+    if (val) {
+      selectedLangs.push(lang);
+    } else {
+      selectedLangs = arrayUtil.filter(selectedLangs, function(item) { return item != lang; });
+    }
+    reconstructSlides();
+  };
+
+  updateLayoutControls = function(languages) {
+    layoutControlsNode = dom.byId("layout-controls");
+    domConstruct.empty(layoutControlsNode);
+    selectedLangs = [];
+
+    _onActiveLangChange = lang.hitch(this, this.onActiveLangChange);
+
+    arrayUtil.forEach(languages, function(lang) {
+      langToggle = new ToggleButton({
+        checked: true,
+        iconClass: "dijitCheckBoxIcon",
+        label: lang,
+        onChange: function(val) { _onActiveLangChange(this.label, val); }
       });
-    };
+      langToggle.placeAt(layoutControlsNode);
+      selectedLangs.push(lang);
+    });
+  };
 
-    onClearBackgroundClick = function(event) {
-      arrayUtil.forEach(screenWidgets, function(sw) {
-        sw.clearBackground();
-      });
-    };
+  onClearBackgroundClick = function(event) {
+    this.displayData.set("background", null);
+  };
 
-    onClearTextClick = function(event) {
-      arrayUtil.forEach(screenWidgets, function(sw) {
-        sw.clearText();
-      });
-    };
+  onClearTextClick = function(event) {
+    this.displayData.set("contents", null);
+  };
 
-    onClearAllClick = function(event) {
-      arrayUtil.forEach(screenWidgets, function(sw) {
-        sw.clearAll();
-      });
-    };
+  onClearAllClick = function(event) {
+    this.displayData.set("background", null);
+    this.displayData.set("contents", null);
+  };
 
-    return {
-      init: function() {
-        startup();
-      }
-    };
+  return {
+    init: function() {
+      startup();
+    }
+  };
  
 });
