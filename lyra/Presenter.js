@@ -43,21 +43,18 @@ define([
 {
   var songsStore = null,
   libraryList = null,
-  slidesStore = null,
-  slidesList = null,
   backgroundsStore = null,
   backgroundList = null,
   screenWidgets = [],
-  selectedLangs = [],
-  activeSong = null,
-  maxLinesPerSlide = 4,
   displayData = null,
+  activeSong = null,
 
   startup = function() {
     songsStore = new Cache(new JsonRest({ target: "songs/" }), new Memory({ }));
     backgroundsStore = new Cache(new JsonRest({ target: "backgrounds/" }), new Memory({ }));
     slidesStore = new Memory({ });
 
+    this.activeSong = new Stateful();
     this.displayData = new Stateful(new DisplayData());
 
     initUi();
@@ -95,34 +92,15 @@ define([
     libraryList.startup();
   },
 
-  initSlideControls = function() {
-    slidesList = new (declare([OnDemandList, Selection]))({
-      selectionMode: 'single',
-      renderRow: function(object, options) {
-        var div = put("div.slide");
-        if (object.type == "content") {
-          arrayUtil.forEach(object.content, function(line) {
-            div.innerHTML += '<p class="slide-line">' + line + '</p>';
-          });
-        } else if (object.type == "separator") {
-          div.innerHTML = '<p class="slide-separator">' + object.content + '</p>';
-        }
-        return div;
-      },
-      allowSelect: function(row) { return row.data.type !== "separator"; },
-      store: slidesStore
-    }, "slides");
-
-    on(slidesList, "dgrid-select", function(event) {
-      onSlideSelectionChange(event.rows[0].data.content);
-    });
-
-    slidesList.startup();
-  },
-
   initPreviewWindow = function() {
     previewWindow = dom.byId("preview").contentWindow;
     on(previewWindow, "parsed", function(event) { onScreenParsed(previewWindow, true); });
+  },
+
+  initSlideControl = function() {
+    var slideControlWidget = registry.byId("slide-control");
+    slideControlWidget.watchSongModel(this.activeSong);
+    slideControlWidget.setDisplayDataRef(this.displayData);
   },
 
   initUi = function() {
@@ -130,7 +108,7 @@ define([
       initPreviewWindow();
       initLibrary();
       initBackgroundList();
-      initSlideControls();
+      initSlideControl();
 
       on(dom.byId("create-screen"), "click", function(event) { onCreateScreenClick(); });
       on(dom.byId("clear-text"), "click", function(event) { onClearTextClick(); });
@@ -154,79 +132,6 @@ define([
     }
   };
 
-  loadSong = function(songId) {
-    request.get("songs/" + songId + "/", {
-      handleAs: "json"
-    }).then(function(songData) {
-      this.activeSong = songData;
-      updateLayoutControls(this.activeSong.languages);
-      reconstructSlides(4);
-    });
-  };
-
-  reconstructSlides = function(maxLinesPerLang) {
-    slidesStore = new Memory({ });
-    constructSlides(maxLinesPerLang);
-    slidesList.setStore(slidesStore);
-  };
-
-  constructSlides = function(maxLinesPerLang) {
-    nextSlide = { };
-    count = 0;
-    nextSlideId = 1;
-
-    activeLangs = selectedLangs;
-    activeLangs.filter(function(lang) {
-      if (this.activeSong.languages.indexOf(lang) == -1)
-        return false;
-      return true;
-    });
-
-    arrayUtil.forEach(activeLangs, function(lang) {
-      nextSlide[lang] = [];
-    });
-
-    arrayUtil.forEach(this.activeSong.verses, function (verse) {
-      sepSlide = { };
-      sepSlide.id = nextSlideId++;
-      sepSlide.type = "separator";
-      sepSlide.content = verse.label;
-      slidesStore.add(sepSlide);
-
-      arrayUtil.forEach(verse.lyrics, function (lyric) {
-        arrayUtil.forEach(activeLangs, function (lang) {
-          nextSlide[lang].push(lyric[lang]);
-          ++count;
-        });
-
-        if (count >= maxLinesPerSlide)
-          flushToSlide(activeLangs, nextSlide, nextSlideId++);
-      });
-
-      if (count > 0)
-        flushToSlide(activeLangs, nextSlide, nextSlideId++);
-    });      
-  };
-
-  flushToSlide = function(activeLangs, nextSlide, id) {
-    content = [];
-    arrayUtil.forEach(activeLangs, function(lang, i) {
-      arrayUtil.forEach(nextSlide[lang], function( line ) {
-        content.push(line);
-      });
-      nextSlide[lang] = [];
-    });
-    count = 0;
-
-    newSlide = { };
-    newSlide.id = id;
-    newSlide.type = "content";
-    newSlide.content = content;
-    slidesStore.add(newSlide);
-
-    console.log(content);
-  };
-
   onSetBackgroundVideo = function(videoInfo) {
     mp4VideoSource = new VideoSourceData({
       mimeType: "video/mp4",
@@ -246,18 +151,15 @@ define([
     this.displayData.set("background", backgroundData);
   };
 
-  onSlideSelectionChange = function(slideContents) {
-    this.displayData.set("contents", slideContents);
-  };
-
   onActiveLangChange = function(lang, val) {
     console.log("active lang change: " + lang + " active: " + val);
+    var selectedLangs = this.activeSong.get("selectedLangs");
     if (val) {
       selectedLangs.push(lang);
     } else {
       selectedLangs = arrayUtil.filter(selectedLangs, function(item) { return item != lang; });
     }
-    reconstructSlides();
+    this.activeSong.set("selectedLangs", selectedLangs);
   };
 
   updateLayoutControls = function(languages) {
@@ -277,6 +179,8 @@ define([
       langToggle.placeAt(layoutControlsNode);
       selectedLangs.push(lang);
     });
+
+    this.activeSong.set("selectedLangs", selectedLangs);
   };
 
   onClearBackgroundClick = function(event) {
@@ -290,6 +194,15 @@ define([
   onClearAllClick = function(event) {
     this.displayData.set("background", null);
     this.displayData.set("contents", null);
+  };
+
+  loadSong = function(songId) {
+    request.get("songs/" + songId + "/", {
+      handleAs: "json"
+    }).then(function(songData) {
+      updateLayoutControls(songData.languages);
+      this.activeSong.set("songData", songData);
+    });
   };
 
   return {
