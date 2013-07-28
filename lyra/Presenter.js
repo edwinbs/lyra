@@ -16,8 +16,6 @@ define([
   "dijit/form/ToggleButton",
   "dojo/_base/lang",
   "lyra/DisplayData",
-  "lyra/BackgroundData",
-  "lyra/VideoSourceData",
   "dojo/Stateful"
 ], function(
   declare,
@@ -37,43 +35,20 @@ define([
   ToggleButton,
   lang,
   DisplayData,
-  BackgroundData,
-  VideoSourceData,
   Stateful)
 {
   var songsStore = null,
   libraryList = null,
-  backgroundsStore = null,
-  backgroundList = null,
-  screenWidgets = [],
   displayData = null,
   activeSong = null,
 
   startup = function() {
     songsStore = new Cache(new JsonRest({ target: "songs/" }), new Memory({ }));
-    backgroundsStore = new Cache(new JsonRest({ target: "backgrounds/" }), new Memory({ }));
-    slidesStore = new Memory({ });
 
     this.activeSong = new Stateful();
     this.displayData = new Stateful(new DisplayData());
 
     initUi();
-  },
-
-  initBackgroundList = function() {
-    backgroundList = new (declare([OnDemandList, Selection]))({
-      selectionMode: 'single',
-      renderRow: function(object, options) {
-          return put("div", object.title);
-      },
-      store: backgroundsStore
-    }, "backgrounds-items");
-
-    on(backgroundList, "dgrid-select", function(event) {
-      onSetBackgroundVideo(event.rows[0].data);
-    });
-
-    backgroundList.startup();
   },
 
   initLibrary = function() {
@@ -103,12 +78,18 @@ define([
     slideControlWidget.setDisplayDataRef(this.displayData);
   },
 
+  initBackgroundLibrary = function() {
+    var backgroundLibraryWidget = registry.byId("page-right"); //TODO
+    backgroundLibraryWidget.setDisplayDataRef(this.displayData);
+    console.log("init ok");
+  },
+
   initUi = function() {
     parser.parse().then(function() {
-      initPreviewWindow();
       initLibrary();
-      initBackgroundList();
       initSlideControl();
+      initBackgroundLibrary();
+      initPreviewWindow();
 
       on(dom.byId("create-screen"), "click", function(event) { onCreateScreenClick(); });
       on(dom.byId("clear-text"), "click", function(event) { onClearTextClick(); });
@@ -123,32 +104,14 @@ define([
   };
 
   onScreenParsed = function(screenWindow, shouldActivate) {
+    console.log("screen parsed");
+
     var screenWidget = screenWindow.get_screen_widget();
     screenWidget.setDisplayData(this.displayData);
-    screenWidgets.push(screenWidget);
 
     if (shouldActivate) {
       screenWidget.activate();
     }
-  };
-
-  onSetBackgroundVideo = function(videoInfo) {
-    mp4VideoSource = new VideoSourceData({
-      mimeType: "video/mp4",
-      src: videoInfo.mp4Filename
-    });
-
-    webmVideoSource = new VideoSourceData({
-      mimeType: "video/webm",
-      src: videoInfo.webmFilename
-    });
-
-    backgroundData = new BackgroundData({
-      type: "video",
-      videoSources: [mp4VideoSource, webmVideoSource]
-    });
-
-    this.displayData.set("background", backgroundData);
   };
 
   onActiveLangChange = function(lang, val) {
