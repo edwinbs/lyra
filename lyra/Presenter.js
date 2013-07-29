@@ -1,76 +1,53 @@
 define([
   "dojo/_base/declare",
-  "dojo/parser",
-  "dojo/on",
-  "dojo/store/JsonRest",
-  "dojo/store/Memory",
-  "dojo/store/Cache",
-  "dijit/registry",
-  "dojo/request",
   "dojo/_base/array",
-  "dojo/dom",
-  "dgrid/OnDemandList",
-  "dgrid/Selection",
-  "put-selector/put",
-  "dojo/dom-construct",
-  "dijit/form/ToggleButton",
   "dojo/_base/lang",
-  "lyra/DisplayData",
-  "dojo/Stateful"
+  "dojo/dom",
+  "dojo/dom-construct",
+  "dojo/on",
+  "dojo/parser",
+  "dojo/request",
+  "dojo/Stateful",
+  "dijit/registry",
+  "dijit/form/ToggleButton",
+  "put-selector/put",
+  "lyra/DisplayData"
 ], function(
   declare,
-  parser,
-  on,
-  JsonRest,
-  Memory,
-  Cache,
-  registry,
-  request,
   arrayUtil,
-  dom,
-  OnDemandList,
-  Selection,
-  put,
-  domConstruct,
-  ToggleButton,
   lang,
-  DisplayData,
-  Stateful)
+  dom,
+  domConstruct,
+  on,
+  parser,
+  request,
+  Stateful,
+  registry,
+  ToggleButton,
+  put,
+  DisplayData)
 {
   return {
-    songsStore: null,
-
-    libraryList: null,
-
     displayData: null,
 
     activeSong: null,
 
     startup: function() {
-      this.songsStore = new Cache(new JsonRest({ target: "songs/" }), new Memory({ }));
-
       this.activeSong = new Stateful();
       this.displayData = new Stateful(new DisplayData());
+
+      var myUpdateLayoutControls = lang.hitch(this, this.updateLayoutControls);
+      this.activeSong.watch("songData", function(name, oldValue, newValue) {
+        myUpdateLayoutControls(newValue.languages);
+      });
 
       var myInitUi = lang.hitch(this, this.initUi);
       parser.parse().then(function() { myInitUi(); });
     },
 
     initLibrary: function() {
-      libraryList = new (declare([OnDemandList, Selection]))({
-        selectionMode: 'single',
-        renderRow: function(object, options) {
-          return put("div", object.title);
-        },
-        store: this.songsStore
-      }, "library-items");
-
-      var myLoadSong = lang.hitch(this, this.loadSong);
-      on(libraryList, "dgrid-select", function(event) {
-        myLoadSong(event.rows[0].data.id);
-      });
-
-      libraryList.startup();
+      var songLibraryWidget = registry.byId("library");
+      songLibraryWidget.setActiveSongRef(this.activeSong);
     },
 
     initPreviewWindow: function() {
@@ -168,22 +145,6 @@ define([
     onClearAllClick: function(event) {
       this.displayData.set("background", null);
       this.displayData.set("contents", null);
-    },
-
-    loadSong: function(songId) {
-      var myUpdateLayoutControls = lang.hitch(this, this.updateLayoutControls);
-      var mySetSongData = lang.hitch(this, this.setSongData);
-
-      request.get("songs/" + songId + "/", {
-        handleAs: "json"
-      }).then(function(songData) {
-        myUpdateLayoutControls(songData.languages);
-        mySetSongData(songData);
-      });
-    },
-
-    setSongData: function(songData) {
-      this.activeSong.set("songData", songData);
     },
 
     init: function() {
