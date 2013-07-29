@@ -37,14 +37,17 @@ define([
   DisplayData,
   Stateful)
 {
-  var songsStore = null;
-  var libraryList = null;
-  var displayData = null;
-  var activeSong = null;
-
   return {
+    songsStore: null,
+
+    libraryList: null,
+
+    displayData: null,
+
+    activeSong: null,
+
     startup: function() {
-      songsStore = new Cache(new JsonRest({ target: "songs/" }), new Memory({ }));
+      this.songsStore = new Cache(new JsonRest({ target: "songs/" }), new Memory({ }));
 
       this.activeSong = new Stateful();
       this.displayData = new Stateful(new DisplayData());
@@ -59,7 +62,7 @@ define([
         renderRow: function(object, options) {
           return put("div", object.title);
         },
-        store: songsStore
+        store: this.songsStore
       }, "library-items");
 
       var myLoadSong = lang.hitch(this, this.loadSong);
@@ -71,7 +74,7 @@ define([
     },
 
     initPreviewWindow: function() {
-      previewWindow = dom.byId("preview").contentWindow;
+      var previewWindow = dom.byId("preview").contentWindow;
       var myOnScreenParsed = lang.hitch(this, this.onScreenParsed);
       on(previewWindow, "parsed", function(event) { myOnScreenParsed(previewWindow, true); });
     },
@@ -106,7 +109,7 @@ define([
     },
 
     onCreateScreenClick: function() {
-      screenWindow = window.open("screen/", "screen_window", "toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=400,height=300");
+      var screenWindow = window.open("screen/", "screen_window", "toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=400,height=300");
       var myOnScreenParsed = lang.hitch(this, this.onScreenParsed);
       on(screenWindow, "parsed", function(event) { myOnScreenParsed(screenWindow, false); });
     },
@@ -134,11 +137,11 @@ define([
     },
 
     updateLayoutControls: function(languages) {
-      layoutControlsNode = dom.byId("layout-controls");
+      var layoutControlsNode = dom.byId("layout-controls");
       domConstruct.empty(layoutControlsNode);
-      selectedLangs = [];
+      var selectedLangs = [];
 
-      _onActiveLangChange = lang.hitch(this, this.onActiveLangChange);
+      var _onActiveLangChange = lang.hitch(this, this.onActiveLangChange);
 
       arrayUtil.forEach(languages, function(lang) {
         langToggle = new ToggleButton({
