@@ -36,6 +36,10 @@ html, body {
     height: 100%;
 }
 
+#controls {
+    height: 8em;
+}
+
 #slide-controls {
     overflow: hidden;
 }

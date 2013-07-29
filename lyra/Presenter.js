@@ -65,7 +65,11 @@ define([
     initBackgroundLibrary: function() {
       var backgroundLibraryWidget = registry.byId("page-right"); //TODO
       backgroundLibraryWidget.setDisplayDataRef(this.displayData);
-      console.log("init ok");
+    },
+
+    initScreenControl: function() {
+      var screenControlWidget = registry.byId("screen-control");
+      screenControlWidget.setDisplayDataRef(this.displayData);
     },
 
     initUi: function() {
@@ -73,22 +77,7 @@ define([
       this.initSlideControl();
       this.initBackgroundLibrary();
       this.initPreviewWindow();
-
-      var myOnCreateScreenClick = lang.hitch(this, this.onCreateScreenClick);
-      var myOnClearTextClick = lang.hitch(this, this.onClearTextClick);
-      var myOnClearBackgroundClick = lang.hitch(this, this.onClearBackgroundClick);
-      var myOnClearAllClick = lang.hitch(this, this.onClearAllClick);
-
-      on(dom.byId("create-screen"), "click", function(event) { myOnCreateScreenClick(); });
-      on(dom.byId("clear-text"), "click", function(event) { myOnClearTextClick(); });
-      on(dom.byId("clear-background"), "click", function(event) { myOnClearBackgroundClick(); });
-      on(dom.byId("clear-all"), "click", function(event) { myOnClearAllClick(); });
-    },
-
-    onCreateScreenClick: function() {
-      var screenWindow = window.open("screen/", "screen_window", "toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=400,height=300");
-      var myOnScreenParsed = lang.hitch(this, this.onScreenParsed);
-      on(screenWindow, "parsed", function(event) { myOnScreenParsed(screenWindow, false); });
+      this.initScreenControl();
     },
 
     onScreenParsed: function(screenWindow, shouldActivate) {
@@ -132,19 +121,6 @@ define([
       });
 
       this.activeSong.set("selectedLangs", selectedLangs);
-    },
-
-    onClearBackgroundClick: function(event) {
-      this.displayData.set("background", null);
-    },
-
-    onClearTextClick: function(event) {
-      this.displayData.set("contents", null);
-    },
-
-    onClearAllClick: function(event) {
-      this.displayData.set("background", null);
-      this.displayData.set("contents", null);
     },
 
     init: function() {
