@@ -79,6 +79,17 @@ define([
 
     setDisplayDataRef: function(displayData) {
       this.displayData = displayData;
+
+      var myOnBackgroundChange = lang.hitch(this, this.onBackgroundChange);
+      this.displayData.watch("background", function(name, oldValue, newValue) {
+        myOnBackgroundChange(newValue);
+      });
+    },
+
+    onBackgroundChange: function(newBackground) {
+      if (!newBackground) {
+        this.backgroundList.clearSelection();
+      }
     },
 
     startup: function() {

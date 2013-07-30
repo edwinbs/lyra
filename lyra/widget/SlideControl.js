@@ -150,6 +150,17 @@ define([
 
     setDisplayDataRef: function(displayData) {
       this.displayData = displayData;
+
+      var myOnDisplayDataChange = lang.hitch(this, this.onDisplayDataChange);
+      this.displayData.watch("contents", function(name, oldValue, newValue) {
+        myOnDisplayDataChange(newValue);
+      })
+    },
+
+    onDisplayDataChange: function(newContents) {
+      if (!newContents) {
+        this.slidesList.clearSelection();
+      }
     },
 
     onSlideSelectionChange: function(slideContents) {
