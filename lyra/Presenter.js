@@ -1,30 +1,20 @@
 define([
   "dojo/_base/declare",
-  "dojo/_base/array",
   "dojo/_base/lang",
   "dojo/dom",
-  "dojo/dom-construct",
   "dojo/on",
   "dojo/parser",
-  "dojo/request",
   "dojo/Stateful",
   "dijit/registry",
-  "dijit/form/ToggleButton",
-  "put-selector/put",
   "lyra/DisplayData"
 ], function(
   declare,
-  arrayUtil,
   lang,
   dom,
-  domConstruct,
   on,
   parser,
-  request,
   Stateful,
   registry,
-  ToggleButton,
-  put,
   DisplayData)
 {
   return {
@@ -35,11 +25,6 @@ define([
     startup: function() {
       this.activeSong = new Stateful();
       this.displayData = new Stateful(new DisplayData());
-
-      var myUpdateLayoutControls = lang.hitch(this, this.updateLayoutControls);
-      this.activeSong.watch("songData", function(name, oldValue, newValue) {
-        myUpdateLayoutControls(newValue.languages);
-      });
 
       var myInitUi = lang.hitch(this, this.initUi);
       parser.parse().then(function() { myInitUi(); });
@@ -72,12 +57,18 @@ define([
       screenControlWidget.setDisplayDataRef(this.displayData);
     },
 
+    initLanguageControl: function() {
+      var languageControlWidget = registry.byId("language-control");
+      languageControlWidget.setActiveSongRef(this.activeSong);
+    },
+
     initUi: function() {
       this.initLibrary();
       this.initSlideControl();
       this.initBackgroundLibrary();
       this.initPreviewWindow();
       this.initScreenControl();
+      this.initLanguageControl();
     },
 
     onScreenParsed: function(screenWindow, shouldActivate) {
@@ -89,38 +80,6 @@ define([
       if (shouldActivate) {
         screenWidget.activate();
       }
-    },
-
-    onActiveLangChange: function(lang, val) {
-      console.log("active lang change: " + lang + " active: " + val);
-      var selectedLangs = this.activeSong.get("selectedLangs");
-      if (val) {
-        selectedLangs.push(lang);
-      } else {
-        selectedLangs = arrayUtil.filter(selectedLangs, function(item) { return item != lang; });
-      }
-      this.activeSong.set("selectedLangs", selectedLangs);
-    },
-
-    updateLayoutControls: function(languages) {
-      var layoutControlsNode = dom.byId("layout-controls");
-      domConstruct.empty(layoutControlsNode);
-      var selectedLangs = [];
-
-      var _onActiveLangChange = lang.hitch(this, this.onActiveLangChange);
-
-      arrayUtil.forEach(languages, function(lang) {
-        langToggle = new ToggleButton({
-          checked: true,
-          iconClass: "dijitCheckBoxIcon",
-          label: lang,
-          onChange: function(val) { _onActiveLangChange(this.label, val); }
-        });
-        langToggle.placeAt(layoutControlsNode);
-        selectedLangs.push(lang);
-      });
-
-      this.activeSong.set("selectedLangs", selectedLangs);
     },
 
     init: function() {
