@@ -167,9 +167,11 @@ define([
         domConstruct.empty(elementSpan);
 
         if (lines) {
-          arrayUtil.forEach(lines, function(line) {
-            domConstruct.place('<p>' + line + '</p>', elementSpan, "last");
-          });
+          for (var language in lines) {
+            arrayUtil.forEach(lines[language], function(line) {
+              domConstruct.place('<p>' + line + '</p>', elementSpan, "last");
+            });
+          }
         }
 
         fx.fadeOut({

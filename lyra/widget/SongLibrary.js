@@ -74,7 +74,6 @@ define([
 
     setActiveSongRef: function(activeSong) {
       this.activeSong = activeSong;
-      console.log(this.activeSong);
     },
 
     startup: function() {

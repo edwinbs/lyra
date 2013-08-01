@@ -40,16 +40,21 @@ define([
 
     selectedLangs: null,
 
+    templateStore: null,
+
     initUI: function() {
       this.slidesList = new (declare([OnDemandList, Selection]))({
         selectionMode: 'single',
         renderRow: function(object, options) {
           var div = put("div.slide");
-          if (object.type == "content") {
-            arrayUtil.forEach(object.content, function(line) {
-              div.innerHTML += '<p class="slide-line">' + line + '</p>';
-            });
-          } else if (object.type == "separator") {
+          if (object.type == "song" || object.type == "section") {
+            for (var lang in object.content) {
+              arrayUtil.forEach(object.content[lang], function(line) {
+                div.innerHTML += '<p class="slide-line">' + line + '</p>';
+              });
+            }
+          }
+          else if (object.type == "separator") {
             div.innerHTML = '<p class="slide-separator">' + object.content + '</p>';
           }
           return div;
@@ -61,7 +66,7 @@ define([
       var myOnSlideSelectionChange = lang.hitch(this, this.onSlideSelectionChange);
 
       on(this.slidesList, "dgrid-select", function(event) {
-        myOnSlideSelectionChange(event.rows[0].data.content);
+        myOnSlideSelectionChange(event.rows[0].data);
       });
 
       this.slidesList.startup();
@@ -107,6 +112,17 @@ define([
         nextSlide[lang] = [];
       });
 
+      //Create title slide
+      titleSlideContent = { };
+      arrayUtil.forEach(activeLangs, function(lang) {
+        titleSlideContent[lang] = [activeSong.title[lang]];
+      });
+      titleSlide = { };
+      titleSlide.id = nextSlideId++;
+      titleSlide.type = "section";
+      titleSlide.content = titleSlideContent;
+      slidesStore.add(titleSlide);
+
       arrayUtil.forEach(activeSong.verses, function (verse) {
         sepSlide = { };
         sepSlide.id = nextSlideId++;
@@ -129,10 +145,11 @@ define([
       });
 
       function flushToSlide(slidesStore, activeLangs, nextSlide, id) {
-        content = [];
+        content = { };
         arrayUtil.forEach(activeLangs, function(lang, i) {
+          content[lang] = [];
           arrayUtil.forEach(nextSlide[lang], function( line ) {
-            content.push(line);
+            content[lang].push(line);
           });
           nextSlide[lang] = [];
         });
@@ -140,7 +157,7 @@ define([
 
         newSlide = { };
         newSlide.id = id;
-        newSlide.type = "content";
+        newSlide.type = "song";
         newSlide.content = content;
         slidesStore.add(newSlide);
 
@@ -163,13 +180,40 @@ define([
       }
     },
 
-    onSlideSelectionChange: function(slideContents) {
-      this.displayData.set("contents", slideContents);
+    onSlideSelectionChange: function(slide) {
+      //Pick a template for display
+      var matchingTemplates = this.templateStore.query(function(slideTemplate) {
+        if (slideTemplate.type != slide.type)
+          return false;
+
+        return true;
+      });
+
+      console.log(matchingTemplates);
+      this.displayData.set("contents", slide.content);
     },
 
     startup: function() {
       this.inherited(arguments);
       this.initUI();
+      this.loadSlideTemplates();
+    },
+
+    loadSlideTemplates: function() {
+      //TODO: when there is a back end, use JsonRest store with cache.
+      //It can't be done now because JsonRest cannot be queried without a proper back end.
+
+      var myInitTemplateStore = lang.hitch(this, this.initTemplateStore);
+
+      request.get("templates/", {
+        handleAs: "json"
+      }).then(function(templateList) {
+        myInitTemplateStore(templateList);
+      });
+    },
+
+    initTemplateStore: function(templateList) {
+      this.templateStore = new Memory({data: templateList});
     }
   
   });
