@@ -8,6 +8,7 @@ define([
   "dojo/dom-geometry",
   "dojo/query",
   "dojo/on",
+  "dojo/string",
   "dojo/_base/window",
   "dojo/window",
   "dijit/_WidgetBase",
@@ -28,6 +29,7 @@ define([
   domGeometry,
   query,
   on,
+  stringUtil,
   win,
   wind,
   _WidgetBase,
@@ -103,7 +105,7 @@ define([
 
       //Doesn't seem right
       this.updateDisplay("background", null, displayData.background);
-      this.updateDisplay("contents", null, displayData.contents);
+      this.updateDisplay("foreground", null, displayData.foreground);
     },
 
     updateDisplay: function(name, oldValue, newValue) {
@@ -111,7 +113,7 @@ define([
       
       if (name == "background") {
         setBackgroundVideo(newValue);
-      } else if (name == "contents") {
+      } else if (name == "foreground") {
         crossFadeText(newValue);
       }
 
@@ -167,11 +169,8 @@ define([
         domConstruct.empty(elementSpan);
 
         if (lines) {
-          for (var language in lines) {
-            arrayUtil.forEach(lines[language], function(line) {
-              domConstruct.place('<p>' + line + '</p>', elementSpan, "last");
-            });
-          }
+          var content = stringUtil.substitute(lines["templateHtml"], lines["contentMap"]);
+          domConstruct.place(content, elementSpan, "last");
         }
 
         fx.fadeOut({

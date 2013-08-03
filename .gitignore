@@ -3,6 +3,9 @@ backgrounds
 songs
 templates
 
+# Project folders
+documents
+
 # Dojo library folders
 dgrid
 dijit

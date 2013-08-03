@@ -33,7 +33,7 @@ define([
     },
 
     clearText: function(event) {
-      this.displayData.set("contents", null);
+      this.displayData.set("foreground", null);
     },
 
     clearBackground: function(event) {

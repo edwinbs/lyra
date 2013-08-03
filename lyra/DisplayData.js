@@ -3,12 +3,8 @@ define([
 ], function(declare) {
 
   return declare(null, {
-
-    // HTML string with placeholders
-    template: null,
-
-    // Map of placeholder name to text/image content
-    contents: null,
+    // Slide template and contents
+    foreground: null,
 
     // Background video/image
     background: null,

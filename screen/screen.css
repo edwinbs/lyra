@@ -69,3 +69,22 @@ body {
     margin: 0;
 }
 
+.chinese_text {
+    font-family: "Kaiti SC" !important;
+    font-size: 110%;
+    font-weight: bold;
+    line-height: 100%
+}
+
+.holder {
+    margin-top: 0.7em;
+    margin-bottom: 0.7em;
+}
+
+.section {
+    font-family: "Expressway", Helvetica, Arial, sans-serif;
+    font-weight: 200 !important;
+    font-size: 160%;
+    margin-top: 0.2em !important;
+    margin-bottom: 0.2em !important;
+}

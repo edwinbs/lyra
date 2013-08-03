@@ -4,6 +4,7 @@ define([
   "dojo/_base/lang",
   "dojo/on",
   "dojo/request",
+  "dojo/string",
   "dojo/store/Memory",
   "dijit/_WidgetBase",
   "dijit/_TemplatedMixin",
@@ -17,6 +18,7 @@ define([
   lang,
   on,
   request,
+  stringUtil,
   Memory,
   _WidgetBase,
   _TemplatedMixin,
@@ -160,8 +162,6 @@ define([
         newSlide.type = "song";
         newSlide.content = content;
         slidesStore.add(newSlide);
-
-        console.log(content);
       };
     },
 
@@ -169,7 +169,7 @@ define([
       this.displayData = displayData;
 
       var myOnDisplayDataChange = lang.hitch(this, this.onDisplayDataChange);
-      this.displayData.watch("contents", function(name, oldValue, newValue) {
+      this.displayData.watch("foreground", function(name, oldValue, newValue) {
         myOnDisplayDataChange(newValue);
       })
     },
@@ -181,16 +181,91 @@ define([
     },
 
     onSlideSelectionChange: function(slide) {
+      if (!slide) return;
+      
       //Pick a template for display
+      var slideTemplate = this._templateForSlide(slide);
+
+      var contentMap = { };
+      var usedPlaceholders = [];
+
+      for (language in slide.content) {
+        //Construct the text for this language
+        var placeholderContent = "";
+        arrayUtil.forEach(slide.content[language], function(line) {
+          placeholderContent += '<p>' + line + '</p>';
+        });
+
+        //Find a placeholder
+        arrayUtil.some(slideTemplate.placeholders, function(placeholder) {
+          if (placeholder.accept_language.indexOf(language) != -1 &&
+                usedPlaceholders.indexOf(placeholder) == -1) {
+            contentMap[placeholder.label] = placeholderContent;
+            usedPlaceholders.push(placeholder);
+            return true;
+          }
+          return false;
+        });
+      }
+
+      var mySetDisplayDataForeground = lang.hitch(this, this._setDisplayDataForeground);
+
+      request.get(slideTemplate.templateUrl, {
+        handleAs: "text"
+      }).then(function(templateHtml) {
+        var foregroundData = { };
+        foregroundData["templateHtml"] = templateHtml;
+        foregroundData["contentMap"] = contentMap;
+        console.log(foregroundData);
+
+        mySetDisplayDataForeground(foregroundData);
+      });
+    },
+
+    _setDisplayDataForeground: function(newForegroundData) {
+      this.displayData.set("foreground", newForegroundData);
+    },
+
+    _templateForSlide: function(slide) {
       var matchingTemplates = this.templateStore.query(function(slideTemplate) {
+        //Check the template type (song/section/...)
         if (slideTemplate.type != slide.type)
           return false;
+
+        //Check if the required placeholder count matches
+        if (slideTemplate.placeholders.length != Object.keys(slide.content).length)
+          return false;
+
+        //Check if the contents can be assigned to the placeholders
+        var usedPlaceholders = [];
+        for (language in slide.content) {
+          
+          if (!arrayUtil.some(slideTemplate.placeholders, function(placeholder) {
+                if (placeholder.accept_language.indexOf(language) != -1 && 
+                    usedPlaceholders.indexOf(placeholder) == -1) {
+                  usedPlaceholders.push(placeholder);
+                  return true;
+                }
+                return false;
+              })
+            ) {
+            return false;
+          }
+        }
 
         return true;
       });
 
-      console.log(matchingTemplates);
-      this.displayData.set("contents", slide.content);
+      if (matchingTemplates.length == 0) {
+        console.log("No matching template.");
+        return null;
+      }
+      else if (matchingTemplates.length > 1) {
+        console.log("Warning: there are " + matchingTemplates.length + " matching templates.");
+        console.log(matchingTemplates);
+      }
+
+      return matchingTemplates[0];
     },
 
     startup: function() {
