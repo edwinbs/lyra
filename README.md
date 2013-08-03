@@ -48,8 +48,26 @@ Then get the code:
 
 1. Clone this repository
 2. Install dojo, dijit, and dgrid using CPM in the top-level `lyra/` directory.
-3. Get test data and video files from [https://impresscourse.com/lyra/lyra-samples.zip](https://impresscourse.com/lyra/lyra-samples.zip). User: `hope22` Pass: `*,&1,b~6Dpm}` **IMPORTANT:** the videos should be used for development only. We'll find more-flexibly licensed videos.
+3. Get test data and video files from [https://impresscourse.com/lyra/lyra-samples-2.zip](https://impresscourse.com/lyra/lyra-samples.zip). User: `hope22` Pass: `*,&1,b~6Dpm}` **IMPORTANT:** the videos should be used for development only. We'll find more-flexibly licensed videos.
 4. Configure your HTTP server (see next section)
+
+After performing steps 1-3, your folder structure should look like:
+
+	lyra/
+		backgrounds/	-- from samples
+		dgrid/			-- CPM
+		dijit/			-- CPM
+		dojo/			-- CPM
+		lyra/
+		put-selector/	-- CPM
+		screen/
+		songs/			-- from samples
+		templates/		-- from samples
+		xstyle/			-- CPM
+		index.html
+		presenter.css
+		README.md
+		(and some other files that CPM creates)
 
 The current code works on **Safari** on Mac (latest) and **Firefox** on Windows (tested on [ESR 17](http://www.mozilla.org/en-US/firefox/organizations/all.html)). Support for Chrome and Firefox on Mac probably won't be there until we have the [full screen fix of OS X Mavericks](http://www.apple.com/osx/preview/#multiple-displays).
 
