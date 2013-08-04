@@ -3,15 +3,15 @@
   
   <head>
     <meta charset="utf-8">
-    <title>Lyra - Web Based Presenter</title>
+    <title>Lyra - Worship Presenter on the Cloud</title>
     <link rel="stylesheet" href="presenter.css" media="screen">
-    <link rel="stylesheet" href="dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="dijit/themes/tundra/tundra.css">
   </head>
   
-  <body class="claro">
+  <body class="tundra">
     <div id="page"
          data-dojo-type="dijit/layout/BorderContainer"
-         data-dojo-props="design: 'headline'">
+         data-dojo-props="design: 'headline', gutters: false">
 
       <div id="page-header"
            data-dojo-type="dijit/layout/ContentPane"
@@ -21,7 +21,7 @@
 
       <div id="page-left" class="side-pane"
            data-dojo-type="dijit/Layout/BorderContainer"
-           data-dojo-props="region: 'leading', splitter: true">
+           data-dojo-props="region: 'leading', splitter: true, gutters: false">
 
         <div id="live-preview"
              data-dojo-type="dijit/layout/ContentPane"
@@ -37,11 +37,11 @@
 
       <div id="page-center"
            data-dojo-type="dijit/Layout/BorderContainer"
-           data-dojo-props="region: 'center'">
+           data-dojo-props="region: 'center', gutters: false">
 
         <div id="controls"
              data-dojo-type="dijit/layout/BorderContainer"
-             data-dojo-props="region: 'top'">
+             data-dojo-props="region: 'top', gutters: false">
           <div id="screen-control"
                data-dojo-type="lyra/widget/ScreenControl"
                data-dojo-props="region:'top'">

@@ -9,11 +9,14 @@ html, body {
 #page {
     height: 100%;
     font-size: 0.8em;
+    background: #f6f6f6;
 }
 
 #page-header {
 	vertical-align: middle;
 	padding: 0 0.5em 0 0.5em;
+    background-color: white;
+    border-top: 4px solid #7755c5;
 }
 
 #page-header h1 {
@@ -23,25 +26,40 @@ html, body {
 }
 
 .side-pane {
-	width: 25em;
+	width: 28em;
+    background: #f3f3f3;
+}
+
+#page-center {
+    background: #cdcdcd;
 }
 
 #live-preview {
-    height: 15em;
+    height: 18em;
     overflow: hidden;
+    padding: 0;
+    margin: 0;
 }
 
 #preview {
     width: 100%;
     height: 100%;
+    padding: 0;
+    margin: 0;
+    border: none;
 }
 
 #controls {
-    height: 8em;
+    height: 5em;
+    background: #575757;
 }
 
 #slide-controls {
     overflow: hidden;
+}
+
+#controls {
+    padding: 0.5em;
 }
 
 #slides {
@@ -54,12 +72,53 @@ html, body {
 
 .slide {
     margin: 0.5em;
+    background: white;
+}
+
+.slide-box {
     padding: 0.5em;
-    border: 1px solid #eee;
 }
 
 .slide-separator {
-    margin: 0;
+    background: #a7a7a7;
+    border: 1px solid #7f7f7f;
     text-transform: uppercase;
-    color: #888;
+    color: #444;
+    vertical-align: middle;
+    padding: 0.3em;
+}
+
+.dgrid-selected {
+    background-color: #bdaaf2 !important;
+}
+
+.collection-header {
+    text-transform: uppercase;
+    background-color: #888888;
+    height: 1.6em;
+    line-height: 1.6em;
+    vertical-align: middle;
+    padding: 0 0.5em 0 0.5em;
+}
+
+.collection-header h4 {
+    font-size: 0.8em;
+    color: #e5e5e5;
+    font-weight: normal;
+    -webkit-margin-before: 0;
+    -webkit-margin-after: 0;
+}
+
+.collection-item {
+    border-bottom: 1px solid #cbcbcb;
+    height: 3em;
+    line-height: 3em;
+    vertical-align: middle;
+    color: #595959;
+    padding: 0 0.5em 0 0.5em;
+    -webkit-text-rendering: optimizeLegibility;
+    -moz-text-rendering: optimizeLegibility;
+    -ms-text-rendering: optimizeLegibility;
+    -o-text-rendering: optimizeLegibility;
+    text-rendering: optimizeLegibility;
 }

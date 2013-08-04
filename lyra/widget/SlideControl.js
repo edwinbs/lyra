@@ -49,10 +49,12 @@ define([
         selectionMode: 'single',
         renderRow: function(object, options) {
           var div = put("div.slide");
+          
           if (object.type == "song" || object.type == "section") {
+            var div2 = put(div, "div.slide-box");
             for (var lang in object.content) {
               arrayUtil.forEach(object.content[lang], function(line) {
-                div.innerHTML += '<p class="slide-line">' + line + '</p>';
+                div2.innerHTML += '<p class="slide-line">' + line + '</p>';
               });
             }
           }

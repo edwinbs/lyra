@@ -42,7 +42,7 @@ define([
       this.libraryList = new (declare([OnDemandList, Selection]))({
         selectionMode: 'single',
         renderRow: function(object, options) {
-          return put("div", object.title);
+          return put("div.collection-item", object.title);
         },
         store: this.songsStore
       }, "library-items");
