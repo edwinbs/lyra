@@ -48,7 +48,7 @@ Then get the code:
 
 1. Clone this repository
 2. Install dojo, dijit, and dgrid using CPM in the top-level `lyra/` directory.
-3. Get test data and video files from [https://impresscourse.com/lyra/lyra-samples-2.zip](https://impresscourse.com/lyra/lyra-samples.zip). User: `hope22` Pass: `*,&1,b~6Dpm}` **IMPORTANT:** the videos should be used for development only. We'll find more-flexibly licensed videos.
+3. Get test data and video files from [https://impresscourse.com/lyra/lyra-samples-2.zip](https://impresscourse.com/lyra/lyra-samples-2.zip). User: `hope22` Pass: `*,&1,b~6Dpm}` **IMPORTANT:** the videos should be used for development only. We'll find more-flexibly licensed videos.
 4. Configure your HTTP server (see next section)
 
 After performing steps 1-3, your folder structure should look like:
